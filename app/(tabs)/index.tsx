@@ -1,70 +1,109 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React from "react";
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from "react-native";
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { useWallpapers } from "@/hooks/useWallpapers";
+import { LinearGradient } from "expo-linear-gradient";
+import { Href, router } from "expo-router";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function index() {
+  const { wallpapers, Add } = useWallpapers();
 
-export default function HomeScreen() {
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      style={{ marginTop: -8, backgroundColor: "black", paddingBottom: 56 }}
       headerImage={
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+          style={{ height: "100%", width: "100%", backgroundColor: "#333" }}
+          src="https://plus.unsplash.com/premium_photo-1666611820906-4d2d07ec36c1"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+      }
+      headerBackgroundColor={{ dark: "black", light: "black" }}
+    >
+      <View style={styles.headerContainer}>
+        <LinearGradient
+          // Background Linear Gradient
+          colors={["transparent", "#0007", "#000d"]}
+          style={styles.headerGradient}
+        >
+          <Text style={styles.headerText}>Explore</Text>
+        </LinearGradient>
+      </View>
+      <FlatList
+        style={styles.container}
+        data={wallpapers}
+        renderItem={(wallpaper) => (
+          <TouchableOpacity
+            onPress={() =>
+              router.push(("/view/" + wallpaper.item.id) as Href<string>)
+            }
+            style={styles.imageContainer}
+          >
+            <Image src={wallpaper.item.uri} alt="" style={styles.image} />
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2}
+        scrollEnabled={false}
+      />
+
+      <TouchableOpacity style={styles.loadingContainer} onPress={Add}>
+        <Ionicons name="refresh" size={48} color="white" />
+        <Text style={{color: "white"}}>Load More</Text>
+      </TouchableOpacity>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    borderRadius: 8,
+    backgroundColor: "#000",
+    padding: 2,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  imageContainer: {
+    borderRadius: 8,
+    backgroundColor: "#333",
+    flexGrow: 1,
+    margin: 2,
+    aspectRatio: 9 / 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
+  image: {
+    borderRadius: 8,
+    height: "100%",
+    width: "100%",
+  },
+  headerContainer: {
+    flex: 1,
+    alignItems: "center",
+    position: "relative",
+  },
+  headerGradient: {
+    position: "absolute",
     bottom: 0,
-    left: 0,
-    position: 'absolute',
+    paddingVertical: 12,
+    width: "100%",
+  },
+  headerText: {
+    color: "white",
+    fontSize: 44,
+    width: "100%",
+    textAlign: "center",
+    fontWeight: "800",
+  },
+  loadingContainer: {
+    width: "100%",
+    height: 192,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
