@@ -6,84 +6,90 @@ import {
   Text,
   TouchableOpacity,
   View,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
 } from "react-native";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { useWallpapers } from "@/hooks/useWallpapers";
 import { LinearGradient } from "expo-linear-gradient";
 import { Href, router } from "expo-router";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function index() {
   const { wallpapers, Add } = useWallpapers();
 
   return (
-    <ParallaxScrollView
-      style={{ marginTop: -8, backgroundColor: "black", paddingBottom: 56 }}
-      headerImage={
-        <Image
-          style={{ height: "100%", width: "100%", backgroundColor: "#333" }}
-          src="https://plus.unsplash.com/premium_photo-1666611820906-4d2d07ec36c1"
-        />
-      }
-      headerBackgroundColor={{ dark: "black", light: "black" }}
-    >
-      <View style={styles.headerContainer}>
-        <LinearGradient
-          // Background Linear Gradient
-          colors={["transparent", "#0007", "#000d"]}
-          style={styles.headerGradient}
-        >
-          <Text style={styles.headerText}>Explore</Text>
-        </LinearGradient>
-      </View>
+    <View style={{ flex: 1 }}>
       <FlatList
         style={styles.container}
         data={wallpapers}
+        ListHeaderComponent={
+          <View style={styles.headerContainer}>
+            <Image
+              style={styles.header}
+              src="https://plus.unsplash.com/premium_photo-1666611820906-4d2d07ec36c1"
+            />
+            <LinearGradient
+              // Background Linear Gradient
+              colors={["transparent", "#0007", "#000d"]}
+              style={styles.headerGradient}
+            >
+              <Text style={styles.headerText}>Explore</Text>
+            </LinearGradient>
+          </View>
+        }
         renderItem={(wallpaper) => (
-          <TouchableOpacity
-            onPress={() =>
-              router.push(("/view/" + wallpaper.item.id) as Href<string>)
-            }
-            style={styles.imageContainer}
-          >
-            <Image src={wallpaper.item.uri} alt="" style={styles.image} />
-          </TouchableOpacity>
+          <View style={styles.imageContainer}>
+            <TouchableOpacity
+              onPress={() =>
+                router.push(("/view/" + wallpaper.item) as Href<string>)
+              }
+            >
+              <Image
+                src={`https://storage.vivago.ai/image/${wallpaper.item}.jpeg`}
+                alt=""
+                style={styles.image}
+              />
+            </TouchableOpacity>
+          </View>
         )}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item}
         numColumns={2}
-        scrollEnabled={false}
+        onEndReached={Add}
+        onEndReachedThreshold={1}
+        removeClippedSubviews
+        scrollEventThrottle={16}
+        ListFooterComponent={
+          <View style={styles.loadingContainer}>
+            <Ionicons name="refresh" size={48} color="white" />
+            <Text style={{ color: "white" }}>Loading...</Text>
+          </View>
+        }
       />
-
-      <TouchableOpacity style={styles.loadingContainer} onPress={Add}>
-        <Ionicons name="refresh" size={48} color="white" />
-        <Text style={{color: "white"}}>Load More</Text>
-      </TouchableOpacity>
-    </ParallaxScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  header: {
+    height: 400,
+    width: "100%",
+    overflow: "hidden",
+  },
   container: {
     borderRadius: 8,
-    backgroundColor: "#000",
-    padding: 2,
+    flex: 1,
+    height: "100%",
   },
   imageContainer: {
-    borderRadius: 8,
-    backgroundColor: "#333",
     flexGrow: 1,
-    margin: 2,
     aspectRatio: 9 / 16,
+    margin: 2,
   },
   image: {
     borderRadius: 8,
     height: "100%",
     width: "100%",
+    backgroundColor: "#333",
   },
   headerContainer: {
-    flex: 1,
     alignItems: "center",
     position: "relative",
   },

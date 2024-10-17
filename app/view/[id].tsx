@@ -6,25 +6,20 @@ import {
   TouchableOpacity,
   View,
   Alert,
-  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { usePathname } from "expo-router";
-import { useWallpapers } from "@/hooks/useWallpapers";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { LinearGradient } from "expo-linear-gradient";
 import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
 
-export default function ViewWallpaper(props: { segment: string }) {
-  const id = +usePathname().substring(6);
-  const wallpaper = useWallpapers().wallpapers.find((w) => w.id === id);
+export default function ViewWallpaper() {
+  const img_name = usePathname().substring(6);
+  const img_url = `https://storage.vivago.ai/image/${img_name}.jpeg`;
+
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
-
-  if (!wallpaper) {
-    return NOT_FOUND;
-  }
 
   const downloadFile = async () => {
     const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -38,7 +33,7 @@ export default function ViewWallpaper(props: { segment: string }) {
 
     setIsDownloading(true);
     const downloadFolderUri = `${FileSystem.documentDirectory}Download/`;
-    const fileUri = `${downloadFolderUri}${wallpaper.name}.jpg`;
+    const fileUri = `${downloadFolderUri}${img_name}.jpg`;
 
     try {
       const dirInfo = await FileSystem.getInfoAsync(downloadFolderUri);
@@ -49,7 +44,7 @@ export default function ViewWallpaper(props: { segment: string }) {
       }
 
       const downloadResumable = FileSystem.createDownloadResumable(
-        wallpaper.uri,
+        img_url,
         fileUri,
         {},
         ({ totalBytesWritten, totalBytesExpectedToWrite }) => {
@@ -86,7 +81,7 @@ export default function ViewWallpaper(props: { segment: string }) {
 
   return (
     <View style={styles.main}>
-      <Image style={styles.image} src={wallpaper.uri} />
+      <Image style={styles.image} src={img_url} />
       <LinearGradient
         colors={["#0000", "#000a", "#000c"]}
         style={{
@@ -96,7 +91,7 @@ export default function ViewWallpaper(props: { segment: string }) {
           paddingVertical: 24,
         }}
       >
-        {wallpaper.name && <Text style={styles.name}>{wallpaper.name}</Text>}
+        {/* {wallpaper.name && <Text style={styles.name}>{wallpaper.name}</Text>} */}
         <TouchableOpacity
           disabled={isDownloading}
           style={styles.button}
